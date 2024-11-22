@@ -10,6 +10,7 @@
 
 using namespace std;
 
+/// Represents a node of a Binomial Heap
 class Node {
 public:
     int key;
@@ -20,6 +21,41 @@ public:
     
     Node(int k, int d): key(k), degree(d), p(nullptr), right(nullptr), lChild(nullptr)
     {}
+    
+    /// Displays this node, all of it's children, and its siblings and their children
+    void display() {
+        cout << "| ";
+        displaySib();
+        cout << endl;
+        displayChildren(1);
+    }
+    
+    /// Displays this node and it's siblings
+    void displaySib() {
+        cout << key << "(" << degree << ") | ";
+        if (right) {
+            right->displaySib();
+        }
+    }
+    
+    /// Displays this node's children at all levels and all of it's siblings' children
+    /// - Parameters:
+    ///   - level: The level to indent
+    void displayChildren(int level) {
+        if (lChild) {
+            for (int i = 0; i < level; ++i) {
+                cout << "\t";
+            }
+            cout << "" << key << ": | ";
+            lChild->displaySib();
+            cout << endl;
+            lChild->displayChildren(level + 1);
+        }
+        
+        if (right) {
+            right->displayChildren(level);
+        }
+    }
 };
 
 class BinomialHeap {
@@ -274,29 +310,9 @@ public:
         return currNode;
     }
     
-    /*
     void display() {
-        Node* currNode = head;
-        
-        cout << "Head/root nodes: ";
-        while (currNode) {
-            cout << currNode << (currNode->right ? " --- " : "");
-        }
-        
-        while (currNode) {
-            if (currNode->key == k)
-                return currNode;
-            else if (currNode->lChild)
-                currNode = currNode->lChild;
-            else if (currNode->key < k && currNode->right)
-                currNode = currNode->right;
-            else if (currNode->key < k && currNode->p)
-                currNode = currNode->p->right;
-            else
-                currNode = currNode->right;
-        }
+        head->display();
     }
-     */
 };
 
 int main(int argc, const char * argv[]) {
@@ -440,6 +456,10 @@ int main(int argc, const char * argv[]) {
                 cin >> newName;
                 BinomialHeap newHeap = BinomialHeap().makeHeap();
                 heaps.insert(pair<string, BinomialHeap>(newName, newHeap));
+            } else if (command == "display") {
+                cin >> name;
+                BinomialHeap heap = heaps.at(name);
+                heap.display();
             } else {
                 cout << "Invalid command" << endl;
                 cin.clear();
@@ -447,6 +467,7 @@ int main(int argc, const char * argv[]) {
                 continue;
             }
             cout << endl;
+            
         } catch (const out_of_range &e) {
             cout << "----------" << endl << "Error message:" << endl << e.what() << endl << "----------" << endl;
             cout << "No heap exists with the given name. Please try again" << endl;
