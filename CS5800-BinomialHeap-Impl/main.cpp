@@ -240,7 +240,7 @@ public:
             // Updates currPar's old left siblings's right pointer to point to currNode
             Node* parSib = nullptr;
             if (currPar->p) {
-                parSib = currPar->p->lChild;
+                parSib = currPar->lChild;
             } else {
                 parSib = head;
             }
@@ -258,7 +258,9 @@ public:
             // Updates currNode's old left siblings's right pointer to point to currPar
             Node* changedSib = currPar->lChild;
             while (changedSib) {
-                changedSib->p = currNode;
+                if (changedSib != currNode) {
+                    changedSib->p = currNode;
+                }
                 if (changedSib->right == currNode) {
                     Node* skip = changedSib->right->right;
                     changedSib->right = currPar;
@@ -269,6 +271,8 @@ public:
             }
             
             currNode->p = currPar->p;
+            if (currPar->p && currPar->p->lChild == currPar)
+                currPar->p->lChild = currNode;
             currNode->right = currPar->right;
             currNode->lChild = currPar->lChild == currNode ? currPar : currPar->lChild;
             currNode->degree = currPar->degree;
@@ -390,6 +394,7 @@ int main(int argc, const char * argv[]) {
                         heaps[name] = heap;
                         Node* n = heap.search(num);
                         cout << "Inserted " << n->key;
+                        heap.display();
                     } catch (const invalid_argument &e) {
                         cout << "A falure occured during insert operation";
                     }
@@ -405,7 +410,8 @@ int main(int argc, const char * argv[]) {
                         Node* sNode = heap.search(num);
                         heap.remove(sNode);
                         heaps[name] = heap;
-                        cout << "Removed " << num;
+                        cout << "Removed " << num << endl;
+                        heap.display();
                     } catch (const invalid_argument &e) {
                         cout << e.what();
                     }
@@ -416,13 +422,14 @@ int main(int argc, const char * argv[]) {
                 cin >> name;
                 BinomialHeap heap = heaps.at(name);
                 Node* m = heap.min();
-                cout << "Smallest in heap " << name << " is " << m->key;
+                cout << "Smallest in heap " << name << " is " << m->key << endl;
             } else if (command == "extract-min") {
                 cin >> name;
                 BinomialHeap heap = heaps.at(name);
                 Node* m = heap.extractMin();
                 heaps[name] = heap;
-                cout << "Extracted smallest value " << m->key << " from heap " << name;
+                cout << "Extracted smallest value " << m->key << " from heap " << name << endl;
+                heap.display();
             } else if (command == "decrease-key") {
                 cin >> name;
                 cin >> num;
@@ -433,7 +440,8 @@ int main(int argc, const char * argv[]) {
                     Node* sNode = heap.search(num);
                     heap.decreaseKey(sNode, newNum);
                     heaps[name] = heap;
-                    cout << "Decreased " << num << " to " << newNum << " in heap " << name;
+                    cout << "Decreased " << num << " to " << newNum << " in heap " << name << endl;
+                    heap.display();
                 } else {
                     cout << "Incorrect input for decrease-key. Format should be: insert [heap name] [value to change] [new value]";
                 }
@@ -450,6 +458,7 @@ int main(int argc, const char * argv[]) {
                 heaps.erase(otherName);
                 heaps.insert(pair<string, BinomialHeap>(newName, newHeap));
                 cout << "Create new heap " << newName << " and removed heaps " << name << " and " << otherName;
+                newHeap.display();
             } else if (command == "makeHeap") {
                 cout << "Enter a name for the new heap: ";
                 string newName;
